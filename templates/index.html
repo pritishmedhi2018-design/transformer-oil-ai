@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>Transformer Oil AI Analyzer</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <style>
+
+        body{
+            margin:0;
+            padding:0;
+            background:#020617;
+            color:white;
+            font-family:Arial;
+        }
+
+        .container{
+            width:92%;
+            max-width:750px;
+            margin:auto;
+            padding-top:25px;
+            padding-bottom:40px;
+        }
+
+        .title{
+            text-align:center;
+            font-size:34px;
+            font-weight:bold;
+        }
+
+        .subtitle{
+            text-align:center;
+            color:#94a3b8;
+            margin-top:10px;
+            margin-bottom:30px;
+        }
+
+        .card{
+            background:#0f172a;
+            border-radius:20px;
+            padding:22px;
+            margin-bottom:18px;
+        }
+
+        .grid{
+            display:grid;
+            grid-template-columns:1fr 1fr;
+            gap:15px;
+        }
+
+        .value{
+            font-size:30px;
+            font-weight:bold;
+            margin-top:10px;
+        }
+
+        .label{
+            color:#94a3b8;
+        }
+
+        button{
+            width:100%;
+            padding:16px;
+            border:none;
+            border-radius:15px;
+            background:#2563eb;
+            color:white;
+            font-size:17px;
+            cursor:pointer;
+            margin-top:10px;
+        }
+
+        .mode{
+            text-align:center;
+            font-size:18px;
+            margin-top:15px;
+            color:#38bdf8;
+        }
+
+        .quality{
+            text-align:center;
+            font-size:34px;
+            font-weight:bold;
+        }
+
+        .good{
+            color:#22c55e;
+        }
+
+        .moderate{
+            color:#facc15;
+        }
+
+        .bad{
+            color:#ef4444;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="title">
+        Transformer Oil AI Analyzer
+    </div>
+
+    <div class="subtitle">
+        AI Powered Oil Quality Testing Dashboard
+    </div>
+
+    <div class="card">
+
+        <button onclick="setMode('simulation')">
+            Simulation Mode
+        </button>
+
+        <button onclick="setMode('realtime')">
+            Real Time Mode
+        </button>
+
+        <div class="mode" id="mode">
+            Current Mode : Simulation
+        </div>
+
+    </div>
+
+    <div class="card">
+
+        <button onclick="analyzeOil()">
+            Analyze Oil Sample
+        </button>
+
+    </div>
+
+    <div class="grid">
+
+        <div class="card">
+
+            <div class="label">Light Intensity</div>
+
+            <div class="value" id="light">--</div>
+
+        </div>
+
+        <div class="card">
+
+            <div class="label">Temperature</div>
+
+            <div class="value" id="temp">--</div>
+
+        </div>
+
+        <div class="card">
+
+            <div class="label">Cluster</div>
+
+            <div class="value" id="cluster">--</div>
+
+        </div>
+
+        <div class="card">
+
+            <div class="label">Predicted Mix %</div>
+
+            <div class="value" id="mix">--</div>
+
+        </div>
+
+    </div>
+
+    <div class="card">
+
+        <div class="label">Oil Quality</div>
+
+        <div class="quality" id="quality">
+            WAITING...
+        </div>
+
+    </div>
+
+    <div class="card">
+
+        <div class="label">Last Updated</div>
+
+        <div class="value" id="time">--</div>
+
+    </div>
+
+</div>
+
+<script>
+
+async function setMode(mode){
+
+    await fetch('/set_mode/' + mode);
+
+    document.getElementById("mode").innerHTML =
+        "Current Mode : " + mode.toUpperCase();
+
+}
+
+async function analyzeOil(){
+
+    const response = await fetch('/analyze');
+
+    const data = await response.json();
+
+    if(data.status === "error"){
+
+        alert(data.message);
+
+        return;
+    }
+
+    document.getElementById("light").innerHTML = data.light;
+
+    document.getElementById("temp").innerHTML = data.temp;
+
+    document.getElementById("cluster").innerHTML = data.cluster;
+
+    document.getElementById("mix").innerHTML = data.mix + "%";
+
+    document.getElementById("time").innerHTML = data.time;
+
+    const quality = document.getElementById("quality");
+
+    quality.innerHTML = data.quality;
+
+    quality.className = "quality";
+
+    if(data.quality.includes("PURE")){
+
+        quality.classList.add("good");
+
+    }
+
+    else if(data.quality.includes("LOW")){
+
+        quality.classList.add("moderate");
+
+    }
+
+    else{
+
+        quality.classList.add("bad");
+
+    }
+
+}
+
+</script>
+
+</body>
+</html>
